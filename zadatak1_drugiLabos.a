@@ -1,0 +1,167 @@
+                ORG     0
+                B       GLAVNI
+
+                ORG     0x18
+                B       PREKID
+
+
+
+
+
+PREKID          STMFD   SP!, {R0}
+
+                MOV     R0, #0
+                STR     R0, [R3, #0X8]
+
+                MOV     R7, #1
+
+                LDMFD   SP!, {R0}
+                SUBS    PC, LR, #4
+
+
+
+
+LCDWR
+                STMFD   R13!, {R0}
+
+                AND     R0, R0, #0X7F
+
+                STRB    R0, [R1]
+
+                ORR     R0, R0, #0X80
+                STRB    R0, [R1]
+
+                AND     R0, R0, #0X7F
+                STRB    R0, [R1]
+
+                LDMFD   R13!, {R0}
+                MOV     PC, LR
+
+
+
+
+GLAVNI          MSR     CPSR, #0B11010010
+                MOV     R13, #0X10000
+                MSR     CPSR, #0B11010011
+                MOV     R13, #0XF800
+    
+                MOV     R10, #0
+                MOV     R7, #0
+    
+                MOV     R1, #0X500
+                LDR     R1, [R1]
+                ADD     R1, R1, #4
+    
+                MOV     R2, #0X500
+                ADD     R2, R2, #4
+                LDR     R2, [R2]
+
+                MOV     R0, #0B11100000
+                STR     R0, [R2, #8]
+    
+                MOV     R3, #0X500
+                ADD     R3, R3, #8
+                LDR     R3, [R3]
+
+                MOV     R0, #0
+                STR     R0, [R3, #12]
+
+                MOV     R0, #5
+                STR     R0, [R3, #4]
+
+                MOV     R0, #1
+                STR     R0, [R3, #16]
+
+                MRS     R0, CPSR
+                BIC     R0, R0, #0X80
+                MSR     CPSR, R0
+
+PETLJA          ADD     R10, R10, #1
+                CMP     R10, #7
+                SUBEQ   R10, R10, #6
+
+
+                CMP     R10, #1
+                BEQ     STANJE1
+
+                CMP     R10, #2
+                BEQ     STANJE2
+
+                CMP     R10, #3
+                BEQ     STANJE3
+
+                CMP     R10, #4
+                BEQ     STANJE4
+
+                CMP     R10, #5
+                BEQ     STANJE5
+
+                CMP     R10, #6
+                BEQ     STANJE6
+                B       CEKANJE
+
+
+
+
+STANJE1         MOV     R0, #0B00100000
+                STR     R0, [R2]
+                MOV     R0, #0X0D
+                BL      LCDWR
+                MOV     R0, #0X48
+                BL      LCDWR
+                MOV     R0, #0X4F
+                BL      LCDWR
+                MOV     R0, #0X44
+                BL      LCDWR
+                MOV     R0, #0X41
+                BL      LCDWR
+                MOV     R0, #0X4A
+                BL      LCDWR
+                MOV     R0, #0X0A
+                BL      LCDWR
+                B       CEKANJE
+
+STANJE2         MOV     R0, #0X0D
+                BL      LCDWR
+                MOV     R0, #0X53
+                BL      LCDWR
+                MOV     R0, #0X54
+                BL      LCDWR
+                MOV     R0, #0X41
+                BL      LCDWR
+                MOV     R0, #0X4E
+                BL      LCDWR
+                MOV     R0, #0X49
+                BL      LCDWR
+                MOV     R0, #0X0A
+                BL      LCDWR
+                B       CEKANJE
+
+STANJE3         MOV     R0, #0B01100000
+                STR     R0, [R2]
+                B       CEKANJE
+
+STANJE4         MOV     R0, #0B10000000
+                STR     R0, [R2]
+                B       CEKANJE
+
+STANJE5         MOV     R0, #0B01000000
+                STR     R0, [R2]
+                B       CEKANJE
+
+STANJE6         MOV     R0, #0B00100000
+                STR     R0, [R2]
+                B       CEKANJE
+
+CEKANJE         CMP     R7, #1
+                BNE     CEKANJE
+
+                MOV     R7, #0
+
+                MOV     R0, #0
+                STR     R0, [R3, #12]
+
+                B       PETLJA
+
+                ORG     0X500
+VANJSKE         DW      0XFFFF0F00, 0XFFFF0B00, 0XFFFF0E00
