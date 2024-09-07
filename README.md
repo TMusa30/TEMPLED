@@ -1,0 +1,1 @@
+Potrebno skinut SSPARCSS simulator.
